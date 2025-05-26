@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spelling Bee Self-Test Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+    }
+
+    :root {
+      --honeycomb-size: clamp(300px, 80vw, 600px);
+      --button-size: clamp(14px, 2vw, 20px);
+      --word-size: clamp(24px, 5vw, 48px);
+    }
+
+    @media (max-width: 600px) {
+      :root {
+        --honeycomb-size: clamp(250px, 90vw, 400px);
+      }
+    }
+    
+    .polka-dots {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .polka-dots::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, #8B008B 10%, transparent 10.5%),
+                  radial-gradient(circle at 70% 70%, #008B8B 10%, transparent 10.5%),
+                  radial-gradient(circle at 40% 50%, #FF4500 10%, transparent 10.5%),
+                  radial-gradient(circle at 80% 20%, #006400 10%, transparent 10.5%),
+                  radial-gradient(circle at 30% 80%, #FFD700 10%, transparent 10.5%);
+      background-size: 200px 200px;
+      background-repeat: repeat;
+      opacity: 0.2;
+    }
+    
+    .bee-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .button-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(145deg, #DAA520, #FFD700);
+      padding: 20px;
+      border-radius: 30px;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3),
+                  inset 5px 5px 15px rgba(255, 255, 255, 0.3);
+      margin: 20px;
+    }
+    
+    button {
+      font-size: var(--button-size);
+      margin: 5px 0;
+      padding: calc(var(--button-size) * 0.5) calc(var(--button-size) * 1.2);
+      background: linear-gradient(145deg, #FFD700, #DAA520);
+      border: none;
+      border-radius: calc(var(--button-size) * 1.2);
+      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2),
+                  inset 3px 3px 8px rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      color: #333;
+      font-weight: bold;
+      min-width: 120px;
+      white-space: nowrap;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3),
+                  inset 4px 4px 10px rgba(255, 255, 255, 0.3);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3),
+                  inset 2px 2px 6px rgba(255, 255, 255, 0.3);
+    }
+    
+    .polka-dots {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #DAA520, #FFD700);
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .polka-dots::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      background-size: 30px 30px;
+      opacity: 0.5;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .button-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    #wordDisplay {
+      font-size: 24px;
+      margin: 0;
+      text-align: center;
+      color: #333;
+      background-color: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 8px 0;
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 280px;
+    }
+    
+    .honeycomb-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      background: linear-gradient(145deg, #DAA520, #FFD700);
+      border: 5px solid #DAA520;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      z-index: -1;
+    }
+    
+    #wordDisplay {
+      font-size: var(--word-size);
+      margin: 0 0 10px;
+      text-align: center;
+      color: #333;
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      z-index: 1;
+    }
+
+    #wordDisplay.checked-word {
+      font-size: var(--word-size);
+      margin: 0;
+      text-align: center;
+      color: #333;
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      z-index: 2;
+      transform: translateY(-5px);
+    }
+
+    #wordDisplay.checked-word::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      border: 4px solid #FFD700;
+      box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+      z-index: -1;
+    }
+    
+    #status {
+      color: #666;
+      font-size: 16px;
+      margin: 10px 0;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      z-index: 1;
+    }
+
+    #wordDisplay.checked-word {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-size: calc(var(--word-size) * 1.2);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    #wordDisplay.empty {
+      font-size: 0;
+      padding: 0;
+      margin: 0;
+      height: 0;
+    }
+    
+    #status {
+      color: #666;
+      font-size: 16px;
+      margin: 10px 0;
+      text-align: center;
+      padding: 5px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="polka-dots"></div>
+  <div class="container">
+    <div id="wordDisplay"></div>
+    <div id="status"></div>
+    <div class="button-column">
+      <button onclick="playWord()">Start / Start Over</button>
+      <button onclick="repeatWord()">Repeat</button>
+      <button onclick="speakSentence()">Hear It in a Sentence</button>
+      <button onclick="checkWord()">Check</button>
+      <button onclick="nextWord()">Next</button>
+    </div>
+  </div>
+
+  <script>
+    // Check if Speech Synthesis is supported
+    if (!('speechSynthesis' in window)) {
+      alert('Speech synthesis not supported in this browser');
+    }
+
+    // Basic spelling words
+    const spellingWords = [
+  "armadillo", "butterfly", "coyote", "lizard", "mule", "germs", "mission",
+  "breakfast", "dinner", "grapefruit", "lunch", "sandwich", "vegetables",
+  "addition", "clay", "feather", "fingernails", "flute", "shelter", "notebook",
+  "pedestrian", "pyjamas", "ruler", "sound", "team", "toothbrush",
+  "become", "crumple", "defend", "exclaim", "exercise", "follow", "hold",
+  "keep", "open", "recycle", "rest", "smash", "wait", "warn",
+  "classroom", "community", "desert", "habitat", "playground", "rain forest",
+  "brother", "firefighter", "grandfather", "grandmother", "neighbor",
+  "nurse", "sister", "stranger",
+  "beautiful", "dull", "dusty", "empty", "involved", "relaxing", "popular",
+  "spectacular", "wonderful",
+  "across", "birthday", "boldly", "direction", "surprise",
+  "bear", "bee", "bird", "bug", "cat", "chick", "duck", "elephant", "goat", "hen",
+  "horse", "kangaroo", "lion", "mice", "monkey", "pig", "snake", "spider", "tiger", "zebra",
+  "apple", "bread", "cake", "egg", "fish", "food", "fruit", "milk", "nut", "pear",
+  "rice", "water",
+  "bat", "bike", "chair", "clock", "desk", "eraser", "grass", "hat", "log", "marble",
+  "nest", "page", "paint", "plant", "shoes", "table", "tree", "web", "wheel",
+  "arm", "body", "eyes", "ears", "face", "hair", "head", "nose", "teeth",
+  "draw", "drive", "eat", "feed", "feel", "find", "fly", "help", "hurt", "jump",
+  "live", "make", "take", "play", "poke", "put", "run", "sleep", "smell", "use",
+  "work",
+  "clinic", "home", "park", "school", "shop",
+  "baby", "boy", "father", "girl", "mother", "sister",
+  "big", "blue", "green", "hot", "long", "red", "sick", "sly", "small", "pink",
+  "warm",
+  "down", "he", "in", "less", "more", "no", "on", "out", "she", "they",
+  "under", "up", "what", "yes",
+  "circle", "round", "rectangle", "square", "triangle",
+  "day", "now", "once", "soon", "then", "today",
+  "cloud", "sun", "rain", "wind",
+  "armadillo", "butterfly", "coyote", "lizard", "mule", "whale",
+  "breakfast", "dinner", "grapefruit", "lunch", "sandwich", "vegetables",
+  "addition", "clay", "energy", "feather", "fingernails", "flute", "germs", "mission",
+  "notebook", "ruler", "pedestrian", "pyjamas", "sound", "team", "toothbrush",
+  "become", "crumple", "defend", "exclaim", "exercise", "follow", "hold", "keep",
+  "open", "recycle", "rest", "smash", "wait", "warn",
+  "classroom", "community", "desert", "habitat", "playground", "rain forest", "shelter",
+  "brother", "firefighter", "grandfather", "grandmother", "neighbor", "nurse", "sister",
+  "stranger",
+  "beautiful", "dull", "dusty", "empty", "involved", "relaxing", "popular", "spectacular",
+  "across", "birthday", "boldly", "direction", "surprise", "wonderful"
+];
+    
+
+    // Example sentences for each word
+    const sentences = {
+      "armadillo": "The armadillo is a small armored mammal.",
+      "butterfly": "The butterfly flutters among the flowers.",
+      "coyote": "The coyote howls at the moon.",
+      "lizard": "The lizard basks in the sun.",
+      "mule": "The mule carries heavy loads.",
+      "germs": "Washing hands helps prevent germs.",
+      "mission": "The astronauts have an important mission.",
+      "breakfast": "I ate cereal for breakfast.",
+      "dinner": "We had chicken for dinner.",
+      "grapefruit": "The grapefruit is sour but healthy.",
+      "lunch": "I packed a sandwich for lunch.",
+      "sandwich": "I made a turkey sandwich.",
+      "vegetables": "Vegetables are good for you.",
+      "addition": "Addition helps us count things.",
+      "clay": "We molded clay in art class.",
+      "feather": "The bird has soft feathers.",
+      "fingernails": "Keep your fingernails clean.",
+      "flute": "She plays the flute beautifully.",
+      "shelter": "The animals have a warm shelter.",
+      "notebook": "I write in my notebook.",
+      "pedestrian": "Pedestrians walk on sidewalks.",
+      "pyjamas": "I wear pyjamas to bed.",
+      "ruler": "A ruler measures length.",
+      "sound": "Sound is what we hear.",
+      "team": "A team works together.",
+      "toothbrush": "Brush your teeth with a toothbrush.",
+      "become": "I want to become a doctor.",
+      "crumple": "Don't crumple the paper.",
+      "defend": "The guard defends the castle.",
+      "exclaim": "She exclaimed with joy.",
+      "exercise": "Exercise keeps you healthy.",
+      "follow": "Follow the rules, please.",
+      "hold": "Hold the door open.",
+      "keep": "Keep your room tidy.",
+      "open": "Open the window for fresh air.",
+      "recycle": "We should recycle paper.",
+      "rest": "Take a rest when tired.",
+      "smash": "Don't smash the glass.",
+      "wait": "Wait your turn, please.",
+      "warn": "The sign warns of danger.",
+      "classroom": "The classroom is full of students.",
+      "community": "We help our community.",
+      "desert": "The desert is very dry.",
+      "habitat": "Animals need a safe habitat.",
+      "playground": "Children play in the playground.",
+      "rain forest": "The rain forest has many trees.",
+      "brother": "My brother is older than me.",
+      "firefighter": "Firefighters save people.",
+      "grandfather": "I love my grandfather.",
+      "grandmother": "My grandmother bakes cookies.",
+      "neighbor": "Be nice to your neighbor.",
+      "nurse": "The nurse helps sick people.",
+      "sister": "My sister is funny.",
+      "stranger": "Don't talk to strangers.",
+      "beautiful": "The sunset is beautiful.",
+      "dull": "The knife is dull.",
+      "dusty": "Clean the dusty shelves.",
+      "empty": "The box is empty.",
+      "involved": "She's involved in sports.",
+      "relaxing": "Listening to music is relaxing.",
+      "popular": "Ice cream is popular.",
+      "spectacular": "The fireworks were spectacular.",
+      "wonderful": "We had a wonderful day.",
+      "across": "Walk across the bridge.",
+      "birthday": "It's my birthday today!",
+      "boldly": "She spoke boldly in class.",
+      "direction": "Follow the direction signs.",
+      "surprise": "It was a surprise party!",
+      "bear": "The bear lives in the forest.",
+      "bee": "The bee collects nectar from flowers.",
+      "bird": "The bird sings in the morning.",
+      "bug": "The bug crawls on the leaf.",
+      "cat": "The cat sleeps on the sofa.",
+      "dog": "The dog barks at the mailman.",
+      "duck": "The duck swims in the pond.",
+      "elephant": "The elephant has a long trunk.",
+      "goat": "The goat eats grass.",
+      "hen": "The hen lays eggs.",
+      "horse": "The horse runs in the field.",
+      "kangaroo": "The kangaroo has a pouch.",
+      "lion": "The lion roars in the jungle.",
+      "mice": "The mice eat cheese.",
+      "monkey": "The monkey swings in the trees.",
+      "pig": "The pig rolls in the mud.",
+      "snake": "The snake slithers on the ground.",
+      "spider": "The spider spins a web.",
+      "tiger": "The tiger hunts in the forest.",
+      "zebra": "The zebra runs in the savanna.",
+      "apple": "An apple a day keeps the doctor away.",
+      "bread": "I like toast for breakfast.",
+      "cake": "The birthday cake is delicious.",
+      "egg": "Eggs are good for breakfast.",
+      "fish": "The fish swims in the water.",
+      "food": "We need food to live.",
+      "fruit": "Fruits are healthy snacks.",
+      "milk": "Milk helps you grow strong.",
+      "nut": "Nuts are crunchy snacks.",
+      "pear": "The pear is sweet.",
+      "rice": "Rice is a staple food.",
+      "water": "Water is essential for life.",
+      "food": "I need to buy food from the store.",
+      "fruit": "I love eating fresh fruit.",
+      "milk": "I drink milk every morning.",
+      "nut": "The squirrel collects nuts.",
+      "pear": "The pear is ripe.",
+      "rice": "I cooked rice for dinner.",
+      "water": "I drink water to stay hydrated.",
+      "bat": "The bat flies at night.",
+      "bike": "I ride my bike to school.",
+      "chair": "I sit on the chair.",
+      "clock": "The clock shows the time.",
+      "desk": "I do my homework at my desk.",
+      "eraser": "I use an eraser to fix mistakes.",
+      "grass": "The grass is green.",
+      "hat": "I wear a hat in the sun.",
+      "log": "The log burns in the fireplace.",
+      "marble": "I play with marbles.",
+      "nest": "The bird builds a nest.",
+      "page": "I write on a page.",
+      "paint": "I paint with colors.",
+      "plant": "I water the plant.",
+      "shoes": "I wear shoes to protect my feet.",
+      "table": "We eat at the table.",
+      "tree": "The tree has many leaves.",
+      "web": "The spider builds a web.",
+      "wheel": "The wheel spins.",
+      "arm": "I wave my arm.",
+      "body": "I stretch my body.",
+      "eyes": "I use my eyes to see.",
+      "ears": "I use my ears to hear.",
+      "face": "I wash my face.",
+      "hair": "I brush my hair.",
+      "head": "I scratch my head.",
+      "nose": "I smell with my nose.",
+      "teeth": "I brush my teeth.",
+      "draw": "I draw pictures.",
+      "drive": "I drive the car.",
+      "eat": "I eat my lunch.",
+      "feed": "I feed the dog.",
+      "feel": "I feel happy.",
+      "find": "I find my keys.",
+      "fly": "The bird can fly.",
+      "help": "I help my friend.",
+      "hurt": "I hurt my toe.",
+      "jump": "I jump over the rope.",
+      "live": "I live in a house.",
+      "make": "I make a sandwich.",
+      "take": "I take a nap.",
+      "play": "I play with toys.",
+      "poke": "I poke the balloon.",
+      "put": "I put on my shoes.",
+      "run": "I run fast.",
+      "sleep": "I sleep at night.",
+      "smell": "I smell the flowers.",
+      "use": "I use a pencil.",
+      "work": "I work hard.",
+      "clinic": "I visit the doctor at the clinic.",
+      "home": "I go home after school.",
+      "park": "I play in the park.",
+      "school": "I go to school every day.",
+      "shop": "I go shopping with mom.",
+      "baby": "The baby cries.",
+      "boy": "The boy plays soccer.",
+      "father": "Father reads a book.",
+      "girl": "The girl dances.",
+      "mother": "Mother cooks dinner.",
+      "sister": "My sister helps me.",
+      "big": "The elephant is big.",
+      "blue": "The sky is blue.",
+      "green": "The grass is green.",
+      "hot": "The sun is hot.",
+      "long": "The snake is long.",
+      "red": "The apple is red.",
+      "sick": "I feel sick.",
+      "sly": "The fox is sly.",
+      "small": "The ant is small.",
+      "pink": "The flower is pink.",
+      "warm": "The sun is warm.",
+      "down": "I walk down the stairs.",
+      "he": "He plays soccer.",
+      "in": "The cat is in the box.",
+      "less": "I need less sugar.",
+      "more": "I want more cookies.",
+      "no": "No, I don't want to go.",
+      "on": "The book is on the table.",
+      "out": "I go out to play.",
+      "she": "She sings a song.",
+      "they": "They play together.",
+      "under": "The cat is under the table.",
+      "up": "I climb up the ladder.",
+      "what": "What is your name?",
+      "yes": "Yes, I can help.",
+      "circle": "The wheel is a circle.",
+      "round": "The ball is round.",
+      "rectangle": "The door is a rectangle.",
+      "square": "The tile is square.",
+      "triangle": "The roof is a triangle.",
+      "day": "I wake up in the morning.",
+      "now": "I eat now.",
+      "once": "I did it once.",
+      "soon": "I'll be there soon.",
+      "then": "First this, then that.",
+      "today": "Today is sunny.",
+      "cloud": "The cloud is white.",
+      "sun": "The sun is bright.",
+      "rain": "It's raining outside.",
+      "wind": "The wind blows.",
+      "armadillo": "The armadillo has armor.",
+      "butterfly": "The butterfly has colorful wings.",
+      "coyote": "The coyote howls at night.",
+      "lizard": "The lizard sunbathes.",
+      "mule": "The mule carries heavy loads.",
+      "whale": "The whale swims in the ocean.",
+      "breakfast": "I eat breakfast in the morning.",
+      "dinner": "I eat dinner with my family.",
+      "grapefruit": "The grapefruit is sour.",
+      "lunch": "I have lunch at noon.",
+      "sandwich": "I make a sandwich.",
+      "vegetables": "I eat vegetables for dinner.",
+      "addition": "I learn addition in math class.",
+      "clay": "I mold clay into shapes.",
+      "energy": "I have lots of energy.",
+      "feather": "The bird has soft feathers.",
+      "fingernails": "I clip my fingernails.",
+      "flute": "I play the flute.",
+      "germs": "I wash my hands to get rid of germs.",
+      "mission": "I have a mission to learn.",
+      "notebook": "I write in my notebook.",
+      "ruler": "I use a ruler to measure.",
+      "pedestrian": "I am a pedestrian when I walk.",
+      "pyjamas": "I wear pyjamas to bed.",
+      "sound": "I hear a sound.",
+      "team": "I play on a team.",
+      "toothbrush": "I brush my teeth with a toothbrush.",
+      "become": "I want to become a doctor.",
+      "crumple": "I crumple the paper.",
+      "defend": "I defend my friends.",
+      "exclaim": "I exclaim when I'm surprised.",
+      "exercise": "I exercise every day.",
+      "follow": "I follow the rules.",
+      "hold": "I hold my pencil.",
+      "keep": "I keep my room clean.",
+      "open": "I open the door.",
+      "recycle": "I recycle paper.",
+      "rest": "I rest after playing.",
+      "smash": "I smash the clay.",
+      "wait": "I wait for my turn.",
+      "warn": "I warn about danger.",
+      "classroom": "I learn in the classroom.",
+      "community": "I help my community.",
+      "desert": "The desert is dry.",
+      "habitat": "The forest is a habitat for animals.",
+      "playground": "I play in the playground.",
+      "rain forest": "The rain forest is wet.",
+      "shelter": "The house is a shelter.",
+      "brother": "My brother helps me.",
+      "firefighter": "The firefighter saves people.",
+      "grandfather": "Grandfather tells stories.",
+      "grandmother": "Grandmother bakes cookies.",
+      "neighbor": "I play with my neighbor.",
+      "nurse": "The nurse helps sick people.",
+      "sister": "My sister is kind.",
+      "stranger": "I don't talk to strangers.",
+      "beautiful": "The flower is beautiful.",
+      "dull": "The knife is dull.",
+      "dusty": "The room is dusty.",
+      "empty": "The box is empty.",
+      "involved": "I am involved in the project.",
+      "relaxing": "Reading is relaxing.",
+      "popular": "Ice cream is popular.",
+      "spectacular": "The fireworks are spectacular.",
+      "across": "I walk across the street.",
+      "birthday": "I celebrate my birthday.",
+      "boldly": "I speak boldly.",
+      "direction": "I follow directions.",
+      "surprise": "I give a surprise.",
+      "wonderful": "Today is wonderful."
+    };
+
+    let remainingWords = [...spellingWords];
+    let currentWord = "";
+    
+    // DOM Elements
+    const wordDisplay = document.getElementById('wordDisplay');
+    const statusDiv = document.getElementById('status');
+    
+    // Initialize the first word when page loads
+    window.addEventListener('load', () => {
+      try {
+        playWord();
+      } catch (error) {
+        console.error('Error initializing:', error);
+        updateStatus('Error: Unable to initialize. Please refresh the page.');
+      }
+    });
+    
+    // Check if Speech Synthesis is supported
+    if (!('speechSynthesis' in window)) {
+      alert('Speech synthesis not supported in this browser');
+      updateStatus('Speech synthesis not supported. Try using Chrome or Edge.');
+    } else {
+      // Initialize speech synthesis
+      function initializeSpeech() {
+        voices = speechSynthesis.getVoices();
+        if (voices.length === 0) {
+          setTimeout(initializeSpeech, 1000);
+        }
+      }
+
+      speechSynthesis.onvoiceschanged = initializeSpeech;
+      initializeSpeech();
+    }
+
+    function updateStatus(message) {
+      statusDiv.textContent = message;
+      // Add a fade animation
+      statusDiv.style.opacity = '1';
+      setTimeout(() => {
+        statusDiv.style.opacity = '0.5';
+      }, 3000);
+    }
+
+    function playWord() {
+      if (!remainingWords.length) {
+        remainingWords = [...spellingWords];
+      }
+      currentWord = remainingWords[Math.floor(Math.random() * remainingWords.length)];
+      remainingWords = remainingWords.filter(word => word !== currentWord);
+      wordDisplay.textContent = '';
+      wordDisplay.classList.remove('checked-word');
+      speakWord(currentWord);
+      updateStatus("Listen carefully and repeat if necessary, or check if you think you spelled it correctly!");
+    }
+
+    function repeatWord() {
+      if (!currentWord) {
+        updateStatus('No word selected');
+        return;
+      }
+      speakWord(currentWord);
+    }
+
+    function speakSentence() {
+      if (!currentWord) {
+        updateStatus('No word selected');
+        return;
+      }
+      if (!sentences[currentWord]) {
+        updateStatus('No sentence available for this word');
+        return;
+      }
+      speakWord(sentences[currentWord]);
+    }
+
+    function checkWord() {
+      if (!currentWord) {
+        updateStatus('No word selected');
+        return;
+      }
+      wordDisplay.textContent = currentWord;
+      wordDisplay.classList.add('checked-word');
+      updateStatus('Did you get it correct this time?');
+    }
+
+    function nextWord() {
+      if (!remainingWords.length) {
+        remainingWords = [...spellingWords];
+      }
+      currentWord = remainingWords[Math.floor(Math.random() * remainingWords.length)];
+      remainingWords = remainingWords.filter(word => word !== currentWord);
+      wordDisplay.textContent = '';
+      wordDisplay.classList.remove('checked-word');
+      speakWord(currentWord);
+      updateStatus("Listen carefully and repeat if necessary, or check if you think you spelled it correctly!");
+    }
+
+    function speakWord(word) {
+      if (!word) return;
+      
+      // Stop any ongoing speech
+      speechSynthesis.cancel();
+      
+      // Create and configure the utterance
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // Add event listeners for speech progress
+      utterance.onstart = () => {
+        updateStatus('Speaking...');
+      };
+      
+      utterance.onend = () => {
+        updateStatus('Finished speaking');
+      };
+      
+      // Speak the word
+      speechSynthesis.speak(utterance);
+    }
+
+    // Initialize the first word when page loads
+    window.addEventListener('load', playWord);
+  </script>
+</body>
+</html>
