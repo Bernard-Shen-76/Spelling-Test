@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade 2 Spelling Bee Advanced Words Self-Test</title>
+  <style>
+    :root {
+      --gold: #ffd54f;
+      --gold-dark: #d9a300;
+      --brown: #5d4037;
+      --cream: #fff8e1;
+      --ink: #2d2d2d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,.45) 0 9px, transparent 10px),
+        radial-gradient(circle at 85% 30%, rgba(255,255,255,.35) 0 12px, transparent 13px),
+        radial-gradient(circle at 55% 85%, rgba(255,255,255,.35) 0 10px, transparent 11px),
+        linear-gradient(135deg, #f9c74f, #f4a261 55%, #e9c46a);
+    }
+    .app {
+      width: min(94vw, 520px);
+      background: rgba(255,255,255,.96);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.18);
+      border: 4px solid rgba(93,64,55,.12);
+      text-align: center;
+    }
+    .bee { font-size: 48px; line-height: 1; margin-bottom: 6px; }
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 6vw, 36px);
+      color: var(--brown);
+      letter-spacing: .3px;
+    }
+    .subtitle { margin: 8px 0 18px; color: #6d4c41; font-size: 16px; }
+    #wordDisplay {
+      min-height: 86px;
+      width: 100%;
+      margin: 14px auto;
+      padding: 18px 12px;
+      border-radius: 18px;
+      background: var(--cream);
+      border: 3px dashed var(--gold-dark);
+      font-size: clamp(36px, 9vw, 58px);
+      font-weight: 800;
+      color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      word-break: break-word;
+    }
+    #wordDisplay.empty { color: transparent; }
+    #status {
+      min-height: 46px;
+      margin: 10px auto 16px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #fffde7;
+      color: #5f4b32;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .buttons { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+      color: #2b2118;
+      box-shadow: 0 6px 0 #a16f00, 0 10px 18px rgba(0,0,0,.14);
+      transition: transform .08s ease, box-shadow .08s ease, filter .2s ease;
+    }
+    button:hover { filter: brightness(1.03); }
+    button:active { transform: translateY(4px); box-shadow: 0 2px 0 #a16f00, 0 5px 10px rgba(0,0,0,.13); }
+    .secondary { background: linear-gradient(180deg, #fff3bf, #ffd166); }
+    .footer { margin-top: 14px; color: #7a6a58; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="bee">🐝</div>
+    <h1>Grade 2 Spelling Bee</h1>
+    <div class="subtitle">Advanced Words Self-Test</div>
+
+    <div id="wordDisplay" class="empty" aria-live="polite">Hidden word</div>
+    <div id="status">Press Start to begin.</div>
+
+    <section class="buttons" aria-label="Spelling Bee Controls">
+      <button onclick="startOver()">Start / Start Over</button>
+      <button class="secondary" onclick="repeatWord()">Repeat</button>
+      <button class="secondary" onclick="speakSentence()">Hear It in a Sentence</button>
+      <button class="secondary" onclick="checkWord()">Check</button>
+      <button onclick="nextWord()">Next</button>
+    </section>
+
+    <div class="footer" id="counter">250 advanced words loaded.</div>
+  </main>
+
+  <script>
+    const spellingWords = [
+      "comb",
+      "flew",
+      "grew",
+      "knew",
+      "know",
+      "mink",
+      "mule",
+      "quit",
+      "tale",
+      "teal",
+      "tore",
+      "tune",
+      "broke",
+      "buses",
+      "climb",
+      "Egypt",
+      "fifty",
+      "flank",
+      "forty",
+      "gauge",
+      "graph",
+      "guide",
+      "jewel",
+      "knock",
+      "pitch",
+      "plead",
+      "prank",
+      "right",
+      "rough",
+      "scowl",
+      "shall",
+      "shout",
+      "shove",
+      "stove",
+      "sweat",
+      "table",
+      "thorn",
+      "those",
+      "threw",
+      "thumb",
+      "towel",
+      "valid",
+      "voice",
+      "watch",
+      "weave",
+      "whale",
+      "wheel",
+      "while",
+      "whole",
+      "women",
+      "wreck",
+      "wrote",
+      "agency",
+      "Arctic",
+      "August",
+      "autumn",
+      "bandit",
+      "beaver",
+      "bounce",
+      "Brazil",
+      "bruise",
+      "change",
+      "cheese",
+      "coyote",
+      "crayon",
+      "creamy",
+      "cupful",
+      "danger",
+      "desert",
+      "dismay",
+      "disown",
+      "eighty",
+      "eleven",
+      "fossil",
+      "freeze",
+      "galaxy",
+      "greedy",
+      "ground",
+      "guitar",
+      "handle",
+      "karate",
+      "leaves",
+      "listen",
+      "mammal",
+      "meteor",
+      "minute",
+      "motion",
+      "ninety",
+      "people",
+      "please",
+      "pollen",
+      "pounce",
+      "pulley",
+      "queasy",
+      "raccoon",
+      "reason",
+      "recess",
+      "rotate",
+      "safety",
+      "Saturn",
+      "secret",
+      "sneeze",
+      "soccer",
+      "square",
+      "squeal",
+      "system",
+      "thirty",
+      "twelve",
+      "Uranus",
+      "willow",
+      "window",
+      "because",
+      "ceiling",
+      "Chinese",
+      "citizen",
+      "dancing",
+      "disease",
+      "disobey",
+      "dolphin",
+      "dragged",
+      "eagerly",
+      "England",
+      "evening",
+      "example",
+      "excited",
+      "extinct",
+      "fantasy",
+      "feather",
+      "fiction",
+      "fiddled",
+      "fifteen",
+      "giraffe",
+      "gravity",
+      "grinned",
+      "habitat",
+      "hopeful",
+      "hundred",
+      "instead",
+      "invited",
+      "January",
+      "Jupiter",
+      "kitchen",
+      "located",
+      "machine",
+      "magnify",
+      "mammoth",
+      "meaning",
+      "measure",
+      "Mercury",
+      "million",
+      "musical",
+      "mystery",
+      "Neptune",
+      "newborn",
+      "observe",
+      "October",
+      "planned",
+      "pleases",
+      "prairie",
+      "predict",
+      "quarter",
+      "quicker",
+      "quickly",
+      "rubbing",
+      "seventy",
+      "sweater",
+      "thought",
+      "through",
+      "Tuesday",
+      "Vietnam",
+      "weather",
+      "wrapper",
+      "asteroid",
+      "bellowed",
+      "building",
+      "business",
+      "chipmunk",
+      "classify",
+      "December",
+      "decision",
+      "disaster",
+      "distrust",
+      "dormouse",
+      "eighteen",
+      "elevator",
+      "February",
+      "fourteen",
+      "friction",
+      "invented",
+      "language",
+      "listened",
+      "Malaysia",
+      "meanings",
+      "nineteen",
+      "November",
+      "nutrient",
+      "omnivore",
+      "operator",
+      "pleasant",
+      "position",
+      "remember",
+      "Saturday",
+      "scurries",
+      "Thailand",
+      "thousand",
+      "Thursday",
+      "triangle",
+      "universe",
+      "whiskers",
+      "amphibian",
+      "Australia",
+      "batteries",
+      "beginning",
+      "carnivore",
+      "dangerous",
+      "dinosaur",
+      "disappear",
+      "emergency",
+      "escalator",
+      "herbivore",
+      "lightning",
+      "listening",
+      "realistic",
+      "rectangle",
+      "September",
+      "Singapore",
+      "spaghetti",
+      "telescope",
+      "vibrating",
+      "vibration",
+      "adaptation",
+      "appliances",
+      "compromise",
+      "difference",
+      "electrical",
+      "flashlight",
+      "motorcycle",
+      "nonfiction",
+      "restaurant",
+      "salamander",
+      "television",
+      "vocabulary",
+      "woodpecker",
+      "communicate",
+      "confidently",
+      "electricity",
+      "firefighter",
+      "investigate",
+      "observatory",
+      "Philippines"
+];
+
+    const sentences = {
+      "comb": "I use a comb to fix my hair.",
+      "flew": "The bird flew over the tree.",
+      "grew": "The small plant grew taller.",
+      "knew": "She knew the answer in class.",
+      "know": "I know how to spell this word.",
+      "mink": "A mink is a small furry animal.",
+      "mule": "The mule carried a heavy bag.",
+      "quit": "Do not quit when the work is hard.",
+      "tale": "Grandma told us a funny tale.",
+      "teal": "My shirt is teal and white.",
+      "tore": "He tore the paper by mistake.",
+      "tune": "I can hum a happy tune.",
+      "broke": "The glass broke on the floor.",
+      "buses": "Two buses stopped at the school.",
+      "climb": "We climb the hill after lunch.",
+      "Egypt": "Egypt has many old pyramids.",
+      "fifty": "There are fifty stars on the flag.",
+      "flank": "The horse has a mark on its flank.",
+      "forty": "My dad is forty years old.",
+      "gauge": "We used a gauge to check the tire.",
+      "graph": "The graph shows our class scores.",
+      "guide": "The guide showed us the museum.",
+      "jewel": "The queen wore a red jewel.",
+      "knock": "Please knock before you come in.",
+      "pitch": "He can pitch the ball very fast.",
+      "plead": "The puppy seemed to plead for food.",
+      "prank": "The silly prank made us laugh.",
+      "right": "Raise your right hand.",
+      "rough": "The rock feels rough.",
+      "scowl": "Do not scowl when you lose a game.",
+      "shall": "Shall we read a story now?",
+      "shout": "Please do not shout in the library.",
+      "shove": "Do not shove your friends in line.",
+      "stove": "The soup is hot on the stove.",
+      "sweat": "I sweat when I run fast.",
+      "table": "Put your book on the table.",
+      "thorn": "A rose can have a sharp thorn.",
+      "those": "Those apples are red.",
+      "threw": "She threw the ball to me.",
+      "thumb": "I hurt my thumb while playing.",
+      "towel": "Use a towel after you swim.",
+      "valid": "This ticket is still valid today.",
+      "voice": "Her voice is soft and kind.",
+      "watch": "I wear a watch on my wrist.",
+      "weave": "She can weave a small basket.",
+      "whale": "A whale lives in the ocean.",
+      "wheel": "The bike has a broken wheel.",
+      "while": "I read a book while I waited.",
+      "whole": "I ate the whole sandwich.",
+      "women": "The women sang a beautiful song.",
+      "wreck": "The old car was a wreck.",
+      "wrote": "He wrote his name neatly.",
+      "agency": "The travel agency helped us plan a trip.",
+      "Arctic": "The Arctic is very cold.",
+      "August": "August is a hot month.",
+      "autumn": "Leaves fall in autumn.",
+      "bandit": "The bandit ran away in the story.",
+      "beaver": "A beaver can build a dam.",
+      "bounce": "The ball can bounce very high.",
+      "Brazil": "Brazil is a country in South America.",
+      "bruise": "I got a small bruise on my knee.",
+      "change": "Please change your shoes before class.",
+      "cheese": "I like cheese on my sandwich.",
+      "coyote": "A coyote howled at night.",
+      "crayon": "Use a red crayon to color the apple.",
+      "creamy": "The soup tastes creamy and warm.",
+      "cupful": "Add one cupful of water.",
+      "danger": "A red sign can warn us of danger.",
+      "desert": "A camel can walk in the desert.",
+      "dismay": "She looked at the broken toy in dismay.",
+      "disown": "The story said the king would disown the prince.",
+      "eighty": "My grandma is eighty years old.",
+      "eleven": "There are eleven players on the team.",
+      "fossil": "We saw a dinosaur fossil.",
+      "freeze": "Water can freeze into ice.",
+      "galaxy": "Our sun is in a galaxy.",
+      "greedy": "The greedy dog wanted all the treats.",
+      "ground": "The ball rolled on the ground.",
+      "guitar": "My brother plays the guitar.",
+      "handle": "Please hold the cup by the handle.",
+      "karate": "He learns karate after school.",
+      "leaves": "The leaves turn yellow in fall.",
+      "listen": "Please listen to the teacher.",
+      "mammal": "A dog is a mammal.",
+      "meteor": "A meteor flashed across the sky.",
+      "minute": "Wait one minute, please.",
+      "motion": "The car is in motion.",
+      "ninety": "Ninety is ten less than one hundred.",
+      "people": "Many people came to the park.",
+      "please": "Please help me clean the desk.",
+      "pollen": "Bees collect pollen from flowers.",
+      "pounce": "The cat will pounce on the toy.",
+      "pulley": "A pulley can help lift a box.",
+      "queasy": "I felt queasy on the boat.",
+      "raccoon": "A raccoon has a striped tail.",
+      "reason": "Tell me the reason you are late.",
+      "recess": "We play outside at recess.",
+      "rotate": "The Earth can rotate.",
+      "safety": "Wear a helmet for safety.",
+      "Saturn": "Saturn has beautiful rings.",
+      "secret": "She told me a secret.",
+      "sneeze": "Cover your mouth when you sneeze.",
+      "soccer": "We play soccer after school.",
+      "square": "A square has four equal sides.",
+      "squeal": "The piglet gave a loud squeal.",
+      "system": "Our school has a new system.",
+      "thirty": "There are thirty students in the room.",
+      "twelve": "There are twelve months in a year.",
+      "Uranus": "Uranus is a planet.",
+      "willow": "A willow tree grows near the river.",
+      "window": "Open the window for fresh air.",
+      "because": "I stayed home because it rained.",
+      "ceiling": "The light is on the ceiling.",
+      "Chinese": "We ate Chinese food for dinner.",
+      "citizen": "A citizen should follow the rules.",
+      "dancing": "She is dancing to the music.",
+      "disease": "Washing hands can help stop disease.",
+      "disobey": "Do not disobey your parents.",
+      "dolphin": "A dolphin can jump out of the water.",
+      "dragged": "He dragged the heavy bag across the floor.",
+      "eagerly": "The children eagerly opened the gift.",
+      "England": "England is part of the United Kingdom.",
+      "evening": "We eat dinner in the evening.",
+      "example": "Can you give me an example?",
+      "excited": "I was excited for the trip.",
+      "extinct": "Dinosaurs are extinct.",
+      "fantasy": "The book is a fantasy story.",
+      "feather": "A feather fell from the bird.",
+      "fiction": "Fiction stories are made up.",
+      "fiddled": "He fiddled with his pencil.",
+      "fifteen": "Fifteen comes after fourteen.",
+      "giraffe": "A giraffe has a long neck.",
+      "gravity": "Gravity pulls things down.",
+      "grinned": "She grinned when she won.",
+      "habitat": "A forest is a habitat for many animals.",
+      "hopeful": "I am hopeful that I will win.",
+      "hundred": "One hundred cents make one dollar.",
+      "instead": "I chose water instead of juice.",
+      "invited": "She invited me to her party.",
+      "January": "January is the first month.",
+      "Jupiter": "Jupiter is the largest planet.",
+      "kitchen": "Mom is cooking in the kitchen.",
+      "located": "The school is located near the park.",
+      "machine": "The machine makes ice cream.",
+      "magnify": "A lens can magnify small words.",
+      "mammoth": "A mammoth was a huge animal.",
+      "meaning": "Do you know the meaning of this word?",
+      "measure": "Use a ruler to measure the line.",
+      "Mercury": "Mercury is the closest planet to the sun.",
+      "million": "A million is a very big number.",
+      "musical": "We watched a musical at school.",
+      "mystery": "The mystery book was fun to read.",
+      "Neptune": "Neptune is far from the sun.",
+      "newborn": "The newborn baby slept all day.",
+      "observe": "We observe the moon at night.",
+      "October": "Halloween is in October.",
+      "planned": "We planned a picnic for Saturday.",
+      "pleases": "It pleases me to help my friend.",
+      "prairie": "Many grasses grow on the prairie.",
+      "predict": "Can you predict the ending?",
+      "quarter": "A quarter is twenty-five cents.",
+      "quicker": "This way is quicker than that way.",
+      "quickly": "The rabbit ran quickly.",
+      "rubbing": "She is rubbing her cold hands.",
+      "seventy": "Seventy is ten more than sixty.",
+      "sweater": "I wear a sweater when it is cold.",
+      "thought": "I thought about the answer.",
+      "through": "We walked through the door.",
+      "Tuesday": "Tuesday comes after Monday.",
+      "Vietnam": "Vietnam is a country in Asia.",
+      "weather": "The weather is sunny today.",
+      "wrapper": "Put the candy wrapper in the trash.",
+      "asteroid": "An asteroid moves through space.",
+      "bellowed": "The cow bellowed loudly.",
+      "building": "That building is very tall.",
+      "business": "My aunt owns a small business.",
+      "chipmunk": "A chipmunk ran across the path.",
+      "classify": "We classify animals into groups.",
+      "December": "December is the last month.",
+      "decision": "I made a good decision.",
+      "disaster": "The storm caused a disaster.",
+      "distrust": "The fox felt distrust in the story.",
+      "dormouse": "The dormouse slept in its nest.",
+      "eighteen": "Eighteen comes after seventeen.",
+      "elevator": "We took the elevator to the third floor.",
+      "February": "February is the shortest month.",
+      "fourteen": "Fourteen comes before fifteen.",
+      "friction": "Friction can slow things down.",
+      "invented": "She invented a new game.",
+      "language": "English is a language.",
+      "listened": "I listened to the story.",
+      "Malaysia": "Malaysia is a country in Asia.",
+      "meanings": "Some words have many meanings.",
+      "nineteen": "Nineteen comes after eighteen.",
+      "November": "November comes before December.",
+      "nutrient": "A nutrient helps your body grow.",
+      "omnivore": "A bear is an omnivore.",
+      "operator": "The phone operator answered the call.",
+      "pleasant": "It was a pleasant sunny day.",
+      "position": "Put the chair in the right position.",
+      "remember": "Please remember to bring your book.",
+      "Saturday": "Saturday is a good day to play.",
+      "scurries": "The mouse scurries under the chair.",
+      "Thailand": "Thailand is a country in Asia.",
+      "thousand": "One thousand is a big number.",
+      "Thursday": "Thursday comes before Friday.",
+      "triangle": "A triangle has three sides.",
+      "universe": "The universe is full of stars.",
+      "whiskers": "The cat has long whiskers.",
+      "amphibian": "A frog is an amphibian.",
+      "Australia": "Australia has many kangaroos.",
+      "batteries": "The toy needs new batteries.",
+      "beginning": "The beginning of the story was funny.",
+      "carnivore": "A lion is a carnivore.",
+      "dangerous": "Fire can be dangerous.",
+      "dinosaur": "A dinosaur lived long ago.",
+      "disappear": "The rabbit can disappear in the grass.",
+      "emergency": "Call for help in an emergency.",
+      "escalator": "We rode the escalator at the mall.",
+      "herbivore": "A cow is a herbivore.",
+      "lightning": "Lightning flashed in the sky.",
+      "listening": "Good listening helps you learn.",
+      "realistic": "The drawing looked realistic.",
+      "rectangle": "A rectangle has four sides.",
+      "September": "School starts in September for many children.",
+      "Singapore": "Singapore is a country in Asia.",
+      "spaghetti": "I ate spaghetti for dinner.",
+      "telescope": "We used a telescope to see the moon.",
+      "vibrating": "The phone is vibrating on the table.",
+      "vibration": "I felt the vibration from the drum.",
+      "adaptation": "A thick coat is an adaptation for cold weather.",
+      "appliances": "The kitchen has many appliances.",
+      "compromise": "We made a compromise and shared the toy.",
+      "difference": "Can you spot the difference?",
+      "electrical": "An electrical wire should be handled carefully.",
+      "flashlight": "Use a flashlight in the dark.",
+      "motorcycle": "A motorcycle has two wheels.",
+      "nonfiction": "A nonfiction book tells real facts.",
+      "restaurant": "We ate lunch at a restaurant.",
+      "salamander": "A salamander can live near water.",
+      "television": "We watched a show on television.",
+      "vocabulary": "Reading helps build your vocabulary.",
+      "woodpecker": "A woodpecker pecks a tree.",
+      "communicate": "We communicate when we talk and listen.",
+      "confidently": "She spoke confidently on the stage.",
+      "electricity": "Electricity makes the lamp shine.",
+      "firefighter": "A firefighter helps put out fires.",
+      "investigate": "The students investigate the mystery.",
+      "observatory": "We looked at stars from the observatory.",
+      "Philippines": "The Philippines is a country in Asia."
+};
+
+    let remainingWords = [];
+    let currentWord = "";
+    const wordDisplay = document.getElementById('wordDisplay');
+    const statusDiv = document.getElementById('status');
+    const counterDiv = document.getElementById('counter');
+
+    function updateStatus(message) {
+      statusDiv.textContent = message;
+    }
+
+    function updateCounter() {
+      const done = spellingWords.length - remainingWords.length;
+      counterDiv.textContent = `${spellingWords.length} advanced words loaded. Practiced this round: ${Math.max(0, done)} / ${spellingWords.length}.`;
+    }
+
+    function chooseWord() {
+      if (remainingWords.length === 0) {
+        remainingWords = [...spellingWords];
+      }
+      const index = Math.floor(Math.random() * remainingWords.length);
+      currentWord = remainingWords[index];
+      remainingWords.splice(index, 1);
+      wordDisplay.textContent = "Hidden word";
+      wordDisplay.classList.add('empty');
+      updateCounter();
+    }
+
+    function startOver() {
+      remainingWords = [...spellingWords];
+      chooseWord();
+      speak(currentWord);
+      updateStatus("Listen carefully. Use Repeat, Sentence, Check, or Next.");
+    }
+
+    function nextWord() {
+      chooseWord();
+      speak(currentWord);
+      updateStatus("New word. Listen carefully.");
+    }
+
+    function repeatWord() {
+      if (!currentWord) return updateStatus("Press Start first.");
+      speak(currentWord);
+    }
+
+    function makeSentence(word) {
+      return sentences[word] || `Please listen carefully to the spelling bee word: ${word}.`;
+    }
+
+    function speakSentence() {
+      if (!currentWord) return updateStatus("Press Start first.");
+      speak(makeSentence(currentWord));
+      updateStatus("Speaking a simple sentence for this word...");
+    }
+
+    function checkWord() {
+      if (!currentWord) return updateStatus("Press Start first.");
+      wordDisplay.textContent = currentWord;
+      wordDisplay.classList.remove('empty');
+      updateStatus("Check your spelling. If you were correct, press Next.");
+    }
+
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        updateStatus("Speech synthesis is not supported. Try Chrome or Edge.");
+        return;
+      }
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.85;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      speechSynthesis.speak(utterance);
+    }
+
+    window.addEventListener('load', () => {
+      remainingWords = [...spellingWords];
+      updateCounter();
+    });
+  </script>
+</body>
+</html>
