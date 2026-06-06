@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade 3 Basic Words - Spelling Bee Self-Test Tool</title>
+  <style>
+    :root {
+      --gold: #f7c52f;
+      --gold-dark: #e0a800;
+      --cream: #fff8dc;
+      --text: #1f1f1f;
+      --brown: #4b2500;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #ffd84d, #f0b400);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--text);
+    }
+
+    .container {
+      width: min(520px, 96vw);
+      background: rgba(255, 255, 255, 0.94);
+      border: 4px solid #ffe46b;
+      border-radius: 22px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      padding: 24px 22px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      color: var(--brown);
+      font-size: clamp(28px, 5vw, 38px);
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      margin: 0 0 14px;
+      color: #555;
+      font-size: 15px;
+    }
+
+    #wordDisplay {
+      width: 100%;
+      min-height: 205px;
+      border: 3px solid var(--gold);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fffbe8, #fff7d0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      margin: 10px 0 12px;
+      font-weight: 900;
+      line-height: 1.05;
+      overflow-wrap: normal;
+      word-break: normal;
+      white-space: nowrap;
+      text-align: center;
+      color: #1f1f1f;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+      font-size: clamp(34px, 10vw, 68px);
+    }
+
+    #wordDisplay.empty {
+      color: transparent;
+    }
+
+    #sentenceDisplay {
+      min-height: 44px;
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #333;
+      font-size: 15px;
+      line-height: 1.35;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.09);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button-column {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-top: 6px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #ffe775, #f6c433);
+      box-shadow: 0 8px 14px rgba(0,0,0,0.16);
+      color: #111;
+      font-size: 21px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.14);
+    }
+
+    .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 14px;
+      color: #6a4b00;
+    }
+
+    .pill {
+      padding: 5px 10px;
+      border: 1px solid var(--gold-dark);
+      border-radius: 999px;
+      background: #fff9db;
+      font-weight: 700;
+    }
+
+    #status {
+      color: #555;
+      text-align: right;
+      flex: 1;
+    }
+
+    @media (max-width: 420px) {
+      .container {
+        padding: 18px 14px;
+      }
+
+      #wordDisplay {
+        min-height: 180px;
+      }
+
+      button {
+        font-size: 18px;
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Grade 3 Basic Words</h1>
+    <p class="subtitle">Spelling Bee Self-Test Tool</p>
+
+    <div id="wordDisplay" class="empty"></div>
+    <div id="sentenceDisplay"></div>
+
+    <div class="button-column">
+      <button type="button" onclick="playWord()">Start / Start Over</button>
+      <button type="button" onclick="repeatWord()">Repeat</button>
+      <button type="button" onclick="speakSentence()">Hear It in a Sentence</button>
+      <button type="button" onclick="checkWord()">Check</button>
+      <button type="button" onclick="nextWord()">Next</button>
+    </div>
+
+    <div class="footer-row">
+      <span class="pill">130 words</span>
+      <span id="status">Ready</span>
+    </div>
+  </main>
+
+  <script>
+    const spellingWords = [
+      "tall",
+      "short",
+      "old",
+      "young",
+      "strong",
+      "weak",
+      "girl",
+      "woman",
+      "boy",
+      "man",
+      "thick",
+      "thin",
+      "clean",
+      "dirty",
+      "pretty",
+      "ugly",
+      "hard",
+      "soft",
+      "heavy",
+      "light",
+      "laundry",
+      "dishes",
+      "sweep",
+      "garbage",
+      "vacuum",
+      "carpet",
+      "plants",
+      "feed",
+      "chickens",
+      "vegetables",
+      "pick",
+      "beach",
+      "aquarium",
+      "resources",
+      "Denmark",
+      "wind turbine",
+      "engineer",
+      "perplexed",
+      "dynamo",
+      "linger",
+      "gadget",
+      "gizmo",
+      "dispenser",
+      "puppies",
+      "groceries",
+      "bunnies",
+      "parties",
+      "loveliest",
+      "pennies",
+      "attic",
+      "cursor",
+      "artist",
+      "thunder",
+      "ribbon",
+      "factory",
+      "chimney",
+      "blister",
+      "blizzard",
+      "impolite",
+      "indecisive",
+      "aroma",
+      "windy",
+      "spoonful",
+      "graceful",
+      "bravely",
+      "baker",
+      "conductor",
+      "tailor",
+      "runner",
+      "closely",
+      "painful",
+      "gardener",
+      "certainly",
+      "boastful",
+      "speaker",
+      "watery",
+      "listener",
+      "counselor",
+      "snicker",
+      "friendship",
+      "wheelchair",
+      "curd",
+      "firehouse",
+      "brainstorm",
+      "jellyfish",
+      "scarecrow",
+      "starfish",
+      "adulthood",
+      "awareness",
+      "dairies",
+      "cities",
+      "stories",
+      "ponies",
+      "happiness",
+      "memories",
+      "earlier",
+      "ex-neighbor",
+      "ex-mayor",
+      "ex-footballer",
+      "divisor",
+      "numerator",
+      "fraction",
+      "unlike",
+      "proper",
+      "improper",
+      "circle",
+      "liter",
+      "diameter",
+      "radius",
+      "center",
+      "compass",
+      "decimal",
+      "point",
+      "value",
+      "ones",
+      "tens",
+      "hundreds",
+      "tenth",
+      "forty",
+      "ninety",
+      "twelve",
+      "tornado",
+      "expert",
+      "north",
+      "south",
+      "locate",
+      "compass rose",
+      "basement",
+      "drill",
+      "siren"
+];
+    const sentences = {
+      "tall": "The tall tree stands beside our school.",
+      "short": "The short pencil is in my box.",
+      "old": "My old book has many stories.",
+      "young": "The young child likes to draw.",
+      "strong": "The strong boy can carry the bag.",
+      "weak": "The weak plant needs water.",
+      "girl": "The girl reads a book quietly.",
+      "woman": "The woman walks to the store.",
+      "boy": "The boy kicks the soccer ball.",
+      "man": "The man helps us cross the street.",
+      "thick": "The thick blanket keeps me warm.",
+      "thin": "The thin paper tears easily.",
+      "clean": "Please keep your desk clean.",
+      "dirty": "My shoes are dirty after the rain.",
+      "pretty": "The pretty flower smells sweet.",
+      "ugly": "The ugly bug crawled under the leaf.",
+      "hard": "This math problem is hard.",
+      "soft": "The kitten has soft fur.",
+      "heavy": "The heavy box is on the floor.",
+      "light": "This bag is light and easy to carry.",
+      "laundry": "Mom folded the clean laundry.",
+      "dishes": "Please wash the dishes after dinner.",
+      "sweep": "I sweep the floor every Saturday.",
+      "garbage": "Please put the garbage in the bin.",
+      "vacuum": "Dad will vacuum the living room.",
+      "carpet": "The carpet feels soft under my feet.",
+      "plants": "The plants need sunlight and water.",
+      "feed": "We feed the chickens every morning.",
+      "chickens": "The chickens run around the farm.",
+      "vegetables": "I eat vegetables with my lunch.",
+      "pick": "We pick apples from the tree.",
+      "beach": "We build sandcastles at the beach.",
+      "aquarium": "We saw colorful fish at the aquarium.",
+      "resources": "Water and trees are important resources.",
+      "Denmark": "Denmark is a country in Europe.",
+      "wind turbine": "A wind turbine makes power from wind.",
+      "engineer": "The engineer designs a strong bridge.",
+      "perplexed": "I felt perplexed by the tricky question.",
+      "dynamo": "The small dynamo helped make electricity.",
+      "linger": "The smell of cookies can linger in the kitchen.",
+      "gadget": "This gadget helps me open cans.",
+      "gizmo": "The funny gizmo makes a loud sound.",
+      "dispenser": "The soap dispenser is beside the sink.",
+      "puppies": "The puppies played in the yard.",
+      "groceries": "We bought groceries at the market.",
+      "bunnies": "The bunnies hopped across the grass.",
+      "parties": "We have parties on special days.",
+      "loveliest": "She wore the loveliest dress at the party.",
+      "pennies": "I found three pennies under the sofa.",
+      "attic": "Old toys are stored in the attic.",
+      "cursor": "Move the cursor to click the button.",
+      "artist": "The artist painted a blue sky.",
+      "thunder": "Loud thunder woke me up at night.",
+      "ribbon": "She tied a red ribbon on the gift.",
+      "factory": "The factory makes toys and tools.",
+      "chimney": "Smoke comes out of the chimney.",
+      "blister": "I got a blister on my foot.",
+      "blizzard": "The blizzard covered the road with snow.",
+      "impolite": "It is impolite to interrupt others.",
+      "indecisive": "He was indecisive about which snack to choose.",
+      "aroma": "The aroma of bread filled the room.",
+      "windy": "It is windy at the park today.",
+      "spoonful": "Add one spoonful of sugar to the tea.",
+      "graceful": "The dancer made a graceful turn.",
+      "bravely": "The firefighter bravely entered the building.",
+      "baker": "The baker made fresh bread this morning.",
+      "conductor": "The conductor led the school band.",
+      "tailor": "The tailor fixed my pants.",
+      "runner": "The runner crossed the finish line.",
+      "closely": "Look closely at the tiny insect.",
+      "painful": "The cut on my knee was painful.",
+      "gardener": "The gardener planted flowers near the gate.",
+      "certainly": "I will certainly help you clean up.",
+      "boastful": "The boastful child talked about winning.",
+      "speaker": "The speaker told us a funny story.",
+      "watery": "The soup was too watery for me.",
+      "listener": "A good listener pays attention.",
+      "counselor": "The counselor helped the students talk.",
+      "snicker": "The children tried not to snicker.",
+      "friendship": "Their friendship grew stronger every year.",
+      "wheelchair": "The wheelchair helped him move around.",
+      "curd": "The curd was used to make cheese.",
+      "firehouse": "The firefighters work at the firehouse.",
+      "brainstorm": "Let us brainstorm ideas for the project.",
+      "jellyfish": "A jellyfish floated in the ocean.",
+      "scarecrow": "The scarecrow stood in the cornfield.",
+      "starfish": "We saw a starfish near the rocks.",
+      "adulthood": "Adulthood comes after childhood.",
+      "awareness": "The poster raised awareness about safety.",
+      "dairies": "Many dairies make milk and cheese.",
+      "cities": "Big cities have many tall buildings.",
+      "stories": "Grandma told us two funny stories.",
+      "ponies": "The ponies walked around the field.",
+      "happiness": "Her smile showed great happiness.",
+      "memories": "We made happy memories on our trip.",
+      "earlier": "I finished my homework earlier today.",
+      "ex-neighbor": "My ex-neighbor moved to another town.",
+      "ex-mayor": "The ex-mayor visited our school.",
+      "ex-footballer": "The ex-footballer coached the team.",
+      "divisor": "The divisor tells what number we divide by.",
+      "numerator": "The numerator is the top number in a fraction.",
+      "fraction": "One half is a simple fraction.",
+      "unlike": "These unlike fractions have different denominators.",
+      "proper": "A proper fraction is less than one.",
+      "improper": "An improper fraction can be greater than one.",
+      "circle": "Draw a circle around the answer.",
+      "liter": "A liter is used to measure liquid.",
+      "diameter": "The diameter goes across the circle.",
+      "radius": "The radius goes from the center to the edge.",
+      "center": "Put the dot in the center of the circle.",
+      "compass": "A compass can help you find north.",
+      "decimal": "Write the number as a decimal.",
+      "point": "The decimal point is between the numbers.",
+      "value": "Each digit has a different value.",
+      "ones": "The ones place is at the far right.",
+      "tens": "The digit in the tens place is two.",
+      "hundreds": "The hundreds place shows groups of one hundred.",
+      "tenth": "One tenth is one part out of ten.",
+      "forty": "There are forty students in the hall.",
+      "ninety": "My grandma is ninety years old.",
+      "twelve": "There are twelve months in a year.",
+      "tornado": "A tornado is a dangerous spinning storm.",
+      "expert": "The expert answered our questions.",
+      "north": "The compass points north.",
+      "south": "Birds may fly south in winter.",
+      "locate": "Can you locate Taiwan on the map?",
+      "compass rose": "A compass rose shows directions on a map.",
+      "basement": "The basement is below the house.",
+      "drill": "We had a fire drill at school.",
+      "siren": "The siren was loud during the emergency."
+};
+
+    let remainingWords = [...spellingWords];
+    let currentWord = "";
+    let usedCount = 0;
+
+    const wordDisplay = document.getElementById("wordDisplay");
+    const sentenceDisplay = document.getElementById("sentenceDisplay");
+    const statusDiv = document.getElementById("status");
+
+    function updateStatus(message) {
+      statusDiv.textContent = message;
+    }
+
+    function chooseWord() {
+      if (!remainingWords.length) {
+        remainingWords = [...spellingWords];
+        usedCount = 0;
+      }
+
+      const index = Math.floor(Math.random() * remainingWords.length);
+      currentWord = remainingWords[index];
+      remainingWords.splice(index, 1);
+      usedCount = spellingWords.length - remainingWords.length;
+
+      wordDisplay.textContent = "";
+      wordDisplay.classList.add("empty");
+      sentenceDisplay.textContent = "";
+      fitWordText();
+      updateStatus(`${usedCount} / ${spellingWords.length} used`);
+      speakText(currentWord);
+    }
+
+    function playWord() {
+      remainingWords = [...spellingWords];
+      usedCount = 0;
+      chooseWord();
+    }
+
+    function nextWord() {
+      chooseWord();
+    }
+
+    function repeatWord() {
+      if (!currentWord) {
+        updateStatus("Please start first.");
+        return;
+      }
+      speakText(currentWord);
+    }
+
+    function maskSentence(sentence, word) {
+      if (!sentence || !word) return "";
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "gi");
+      return sentence.replace(regex, "?????");
+    }
+
+    function speakSentence() {
+      if (!currentWord) {
+        updateStatus("Please start first.");
+        return;
+      }
+
+      const sentence = sentences[currentWord] || `This sentence uses the word ${currentWord}.`;
+      sentenceDisplay.textContent = maskSentence(sentence, currentWord);
+      speakText(sentence);
+    }
+
+    function checkWord() {
+      if (!currentWord) {
+        updateStatus("Please start first.");
+        return;
+      }
+
+      wordDisplay.textContent = currentWord;
+      wordDisplay.classList.remove("empty");
+      sentenceDisplay.textContent = sentences[currentWord] || "";
+      fitWordText();
+      updateStatus("Check your spelling.");
+    }
+
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) {
+        updateStatus("Speech synthesis is not supported in this browser.");
+        return;
+      }
+
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.88;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      speechSynthesis.speak(utterance);
+    }
+
+    function fitWordText() {
+      const box = wordDisplay;
+      if (!box.textContent.trim()) return;
+
+      let size = 68;
+      const minSize = 28;
+      box.style.fontSize = size + "px";
+
+      requestAnimationFrame(() => {
+        while (box.scrollWidth > box.clientWidth - 8 && size > minSize) {
+          size -= 2;
+          box.style.fontSize = size + "px";
+        }
+      });
+    }
+
+    window.addEventListener("resize", fitWordText);
+    window.addEventListener("load", () => {
+      updateStatus(`0 / ${spellingWords.length} used`);
+    });
+  </script>
+</body>
+</html>
