@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade 3 Advanced Words Self-Test</title>
+  <style>
+    :root {
+      --gold: #f4c542;
+      --gold-dark: #d59b00;
+      --brown: #4b2e12;
+      --cream: #fff8dc;
+      --card: #ffffff;
+      --text: #2b2b2b;
+      --muted: #666;
+      --word-size: clamp(28px, 7vw, 58px);
+      --button-size: clamp(15px, 3.5vw, 20px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.35) 0 35px, transparent 36px),
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,0.25) 0 28px, transparent 29px),
+        linear-gradient(135deg, #f7d45c, #f3b51b 50%, #d99a00);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+    }
+
+    .container {
+      width: min(94vw, 520px);
+      background: rgba(255,255,255,0.94);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.22);
+      border: 4px solid rgba(255, 215, 0, 0.7);
+      text-align: center;
+    }
+
+    .title {
+      font-weight: 800;
+      color: var(--brown);
+      font-size: clamp(22px, 5vw, 34px);
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    #wordDisplay {
+      min-height: 112px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      background: var(--cream);
+      border: 3px solid var(--gold);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
+      font-size: var(--word-size);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #1f1f1f;
+      padding: 16px;
+      margin: 12px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+    }
+
+    #wordDisplay.hidden-word {
+      color: transparent;
+      text-shadow: none;
+      user-select: none;
+    }
+
+    #status {
+      min-height: 44px;
+      background: #fff;
+      color: var(--muted);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .button-column {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      font-size: var(--button-size);
+      font-weight: 800;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 16px;
+      background: linear-gradient(145deg, #ffe680, var(--gold));
+      color: #322000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.22);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .small-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #fff4bd;
+      border: 1px solid #f0cc4c;
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #634200;
+      font-weight: 700;
+    }
+
+    @media (max-width: 430px) {
+      .container {
+        padding: 16px;
+      }
+      #wordDisplay {
+        min-height: 96px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="title">Grade 3 Advanced Words</div>
+    <div class="subtitle">Spelling Bee Self-Test Tool</div>
+
+    <div id="wordDisplay" class="hidden-word"></div>
+    <div id="status"></div>
+
+    <div class="button-column">
+      <button onclick="playWord()">Start / Start Over</button>
+      <button onclick="repeatWord()">Repeat</button>
+      <button onclick="speakSentence()">Hear It in a Sentence</button>
+      <button onclick="checkWord()">Check</button>
+      <button onclick="nextWord()">Next</button>
+    </div>
+
+    <div class="small-row">
+      <span class="pill">70 words</span>
+      <span id="counter">Ready</span>
+    </div>
+  </main>
+
+  <script>
+    const spellingWords = [
+      "amusement park",
+      "museum",
+      "pharmacy",
+      "hair salon",
+      "bookstore",
+      "dictionary",
+      "calculator",
+      "magazine",
+      "paintbrush",
+      "scissors",
+      "cable",
+      "environmental",
+      "converted",
+      "renewable",
+      "windmill",
+      "mainland",
+      "lighthouse",
+      "harbormaster",
+      "secondhand",
+      "candlelight",
+      "fisherman",
+      "blueberry",
+      "childhood",
+      "hammerhead",
+      "embarrassed",
+      "proclamation",
+      "pungent",
+      "horsepower",
+      "odoriferous",
+      "cottage",
+      "disappointment",
+      "bachelor",
+      "stalk",
+      "scarlet",
+      "grove",
+      "ground",
+      "swelled",
+      "energy",
+      "baffled",
+      "upcoming",
+      "fragrant",
+      "footwear",
+      "tingly",
+      "waterproof",
+      "division",
+      "quotient",
+      "equation",
+      "capacity",
+      "remainder",
+      "dividend",
+      "subtract",
+      "denominator",
+      "milliliter",
+      "circumference",
+      "cardinal",
+      "intermediate",
+      "emergency",
+      "evacuation",
+      "earthquake",
+      "population",
+      "industry",
+      "immigrant",
+      "refugee",
+      "passport",
+      "language",
+      "dialect",
+      "universal",
+      "bilingual",
+      "traditional",
+      "proximity"
+];
+
+    const sentences = {
+      "amusement park": "We had fun at the amusement park.",
+      "museum": "Our class visited the museum.",
+      "pharmacy": "Mom bought medicine at the pharmacy.",
+      "hair salon": "Dad got a haircut at the hair salon.",
+      "bookstore": "I found a new book at the bookstore.",
+      "dictionary": "I used a dictionary to check the word.",
+      "calculator": "I used a calculator for the math problem.",
+      "magazine": "She read a magazine after lunch.",
+      "paintbrush": "He cleaned his paintbrush after art class.",
+      "scissors": "Please use scissors carefully.",
+      "cable": "The cable connects the computer to the screen.",
+      "environmental": "We learned about environmental protection.",
+      "converted": "The old room was converted into a classroom.",
+      "renewable": "Solar power is a renewable energy source.",
+      "windmill": "The windmill turned slowly in the wind.",
+      "mainland": "They traveled from the island to the mainland.",
+      "lighthouse": "The lighthouse helped ships at night.",
+      "harbormaster": "The harbormaster guided the boats safely.",
+      "secondhand": "She bought a secondhand bicycle.",
+      "candlelight": "We ate dinner by candlelight.",
+      "fisherman": "The fisherman caught a big fish.",
+      "blueberry": "I put a blueberry on my pancake.",
+      "childhood": "Grandpa told us a story from his childhood.",
+      "hammerhead": "A hammerhead shark has a wide head.",
+      "embarrassed": "I felt embarrassed when I dropped my books.",
+      "proclamation": "The mayor made a proclamation at the ceremony.",
+      "pungent": "The cheese had a pungent smell.",
+      "horsepower": "This car has a lot of horsepower.",
+      "odoriferous": "The odoriferous flower filled the room with scent.",
+      "cottage": "We stayed in a small cottage by the lake.",
+      "disappointment": "He felt disappointment when the game was canceled.",
+      "bachelor": "My uncle is a bachelor and lives alone.",
+      "stalk": "The flower has a long green stalk.",
+      "scarlet": "She wore a scarlet ribbon in her hair.",
+      "grove": "We walked through a quiet grove of trees.",
+      "ground": "The ball rolled across the ground.",
+      "swelled": "My ankle swelled after I fell.",
+      "energy": "I have more energy after breakfast.",
+      "baffled": "The hard puzzle baffled the students.",
+      "upcoming": "We are excited about the upcoming field trip.",
+      "fragrant": "The fragrant flowers smelled sweet.",
+      "footwear": "Please wear proper footwear for hiking.",
+      "tingly": "My foot felt tingly after sitting too long.",
+      "waterproof": "My jacket is waterproof, so I stayed dry.",
+      "division": "We practiced division in math class.",
+      "quotient": "The quotient is the answer to a division problem.",
+      "equation": "She solved the equation on the board.",
+      "capacity": "This bottle has a capacity of one liter.",
+      "remainder": "There was a remainder after we divided the number.",
+      "dividend": "In division, the dividend is the number being divided.",
+      "subtract": "Please subtract five from ten.",
+      "denominator": "The denominator is the bottom number in a fraction.",
+      "milliliter": "A milliliter is a very small amount of liquid.",
+      "circumference": "We measured the circumference of the circle.",
+      "cardinal": "A cardinal is a bright red bird.",
+      "intermediate": "This book is for intermediate readers.",
+      "emergency": "Call for help in an emergency.",
+      "evacuation": "The school practiced an evacuation drill.",
+      "earthquake": "The ground shook during the earthquake.",
+      "population": "The population of the town is growing.",
+      "industry": "The computer industry changes quickly.",
+      "immigrant": "An immigrant may move to a new country.",
+      "refugee": "The refugee needed a safe place to stay.",
+      "passport": "You need a passport to travel abroad.",
+      "language": "English is a language we study at school.",
+      "dialect": "A dialect is a form of a language used in one area.",
+      "universal": "A smile is a universal sign of happiness.",
+      "bilingual": "My friend is bilingual and speaks two languages.",
+      "traditional": "We ate traditional food at the festival.",
+      "proximity": "The school is in close proximity to the park."
+};
+
+    let remainingWords = [...spellingWords];
+    let currentWord = "";
+    let voices = [];
+
+    const wordDisplay = document.getElementById("wordDisplay");
+    const statusDiv = document.getElementById("status");
+    const counter = document.getElementById("counter");
+
+    function fitWordDisplay() {
+      // Keep long words on one line by shrinking the font only when needed.
+      // This prevents words like "harbormaster" or "disappointment" from breaking into two lines.
+      requestAnimationFrame(() => {
+        const maxSize = window.innerWidth <= 430 ? 48 : 58;
+        const minSize = 28;
+        wordDisplay.style.fontSize = `${maxSize}px`;
+
+        while (wordDisplay.scrollWidth > wordDisplay.clientWidth && parseFloat(wordDisplay.style.fontSize) > minSize) {
+          const currentSize = parseFloat(wordDisplay.style.fontSize);
+          wordDisplay.style.fontSize = `${currentSize - 1}px`;
+        }
+      });
+    }
+
+    function setWordDisplay(text, hidden = false) {
+      wordDisplay.textContent = text;
+      wordDisplay.classList.toggle("hidden-word", hidden);
+      fitWordDisplay();
+    }
+
+    window.addEventListener("resize", fitWordDisplay);
+
+    function updateStatus(message) {
+      statusDiv.textContent = message;
+    }
+
+    function updateCounter() {
+      const done = spellingWords.length - remainingWords.length;
+      counter.textContent = currentWord ? `${done} / ${spellingWords.length} used` : "Ready";
+    }
+
+    function chooseWord() {
+      if (!remainingWords.length) {
+        remainingWords = [...spellingWords];
+        updateStatus("All words finished. The list has started over.");
+      }
+      const index = Math.floor(Math.random() * remainingWords.length);
+      currentWord = remainingWords[index];
+      remainingWords.splice(index, 1);
+      setWordDisplay("•••••", true);
+      updateCounter();
+    }
+
+    function playWord() {
+      remainingWords = [...spellingWords];
+      chooseWord();
+      speak(currentWord);
+      updateStatus("Listen carefully. Spell the word, then press Check.");
+    }
+
+    function nextWord() {
+      chooseWord();
+      speak(currentWord);
+      updateStatus("Listen carefully. Spell the word, then press Check.");
+    }
+
+    function repeatWord() {
+      if (!currentWord) {
+        updateStatus("Press Start first.");
+        return;
+      }
+      speak(currentWord);
+    }
+
+
+    function escapeRegExp(text) {
+      return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function maskCurrentWord(sentence, word) {
+      if (!sentence || !word) return sentence || "";
+      const escaped = escapeRegExp(word);
+      const pattern = new RegExp(`(^|\\W)(${escaped})(?=\\W|$)`, "gi");
+      const masked = sentence.replace(pattern, (match, prefix) => `${prefix}?????`);
+      return masked === sentence ? sentence.replace(new RegExp(escaped, "gi"), "?????") : masked;
+    }
+
+    function speakSentence() {
+      if (!currentWord) {
+        updateStatus("Press Start first.");
+        return;
+      }
+      const sentence = sentences[currentWord];
+      if (!sentence) {
+        updateStatus("No sentence is available for this word.");
+        return;
+      }
+      const maskedSentence = maskCurrentWord(sentence, currentWord);
+      speak(sentence);
+      updateStatus(maskedSentence);
+    }
+
+    function checkWord() {
+      if (!currentWord) {
+        updateStatus("Press Start first.");
+        return;
+      }
+      setWordDisplay(currentWord, false);
+      updateStatus(sentences[currentWord] || "Check your spelling.");
+    }
+
+    function loadVoices() {
+      voices = speechSynthesis.getVoices();
+    }
+
+    function pickEnglishVoice() {
+      if (!voices.length) voices = speechSynthesis.getVoices();
+      return voices.find(v => v.lang === "en-US" && /female|samantha|zira|google/i.test(v.name))
+          || voices.find(v => v.lang === "en-US")
+          || voices.find(v => /^en/i.test(v.lang))
+          || null;
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) {
+        updateStatus("This browser does not support speech synthesis. Try Chrome, Edge, or Safari.");
+        return;
+      }
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.85;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      const voice = pickEnglishVoice();
+      if (voice) utterance.voice = voice;
+      speechSynthesis.speak(utterance);
+    }
+
+    if ("speechSynthesis" in window) {
+      loadVoices();
+      speechSynthesis.onvoiceschanged = loadVoices;
+    } else {
+      updateStatus("Speech synthesis is not supported in this browser.");
+    }
+
+    window.addEventListener("load", () => {
+      setWordDisplay("Ready", true);
+      updateStatus("Press Start to begin.");
+      updateCounter();
+    });
+  </script>
+</body>
+</html>
